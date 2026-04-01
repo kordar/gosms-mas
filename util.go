@@ -8,6 +8,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"log/slog"
 	"net/http"
 	"unicode/utf8"
 )
@@ -51,15 +52,15 @@ func postBase64JSON(client *http.Client, url string, payload any, resp any) erro
 		return err
 	}
 
-	fmt.Println("Unicode JSON:")
-	fmt.Println(string(raw))
+	slog.Debug("MAS unicode json")
+	slog.Debug(string(raw))
 
 	// raw = []byte(`{"secretKey": "123qwe", "sign": "4sEuJxDpC", "apId": "demo0", "mac": "02009a533ee3fb8603062971a53beff0", "ecName": "\u653f\u4f01\u5206\u516c\u53f8\u6d4b\u8bd5", "params": "[\"abcde\"]", "templateId": "38516fabae004eddbfa3ace1d4194696", "addSerial": "", "mobiles": "13800138000"}`)
 
 	// 转 base64
 	b64 := base64.StdEncoding.EncodeToString(raw)
-	fmt.Println("\nBase64:")
-	fmt.Println(b64)
+	slog.Debug("MAS base64")
+	slog.Debug(b64)
 
 	req, err := http.NewRequest(http.MethodPost, url, bytes.NewBufferString(b64))
 	if err != nil {
@@ -79,7 +80,7 @@ func postBase64JSON(client *http.Client, url string, payload any, resp any) erro
 	}
 
 	// Debug: 打印原始响应 Body
-	fmt.Printf("[MAS Debug] Response Body: %s\n", string(bodyBytes))
+	slog.Debug("MAS response body", "body", string(bodyBytes))
 
 	if err := json.Unmarshal(bodyBytes, resp); err != nil {
 		preview := string(bodyBytes)
